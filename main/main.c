@@ -31,7 +31,6 @@
 static EventGroupHandle_t device_event;
 
 uint16_t hid_conn_id = 0;
-static bool sec_conn = false;
 volatile uint32_t last_time;
 
 static uint8_t hidd_service_uuid128[] = {
@@ -91,7 +90,6 @@ static void hidd_event_callback(esp_hidd_cb_event_t event, esp_hidd_cb_param_t *
             break;
         }
         case ESP_HIDD_EVENT_BLE_DISCONNECT: {
-            sec_conn = false;
             ESP_LOGI(HID_TAG, "ESP_HIDD_EVENT_BLE_DISCONNECT");
             esp_ble_gap_start_advertising(&hidd_adv_params);
             xEventGroupClearBits(device_event, BT_CONNECTED); // disconnect 
@@ -126,7 +124,6 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, true);
 	 break;
      case ESP_GAP_BLE_AUTH_CMPL_EVT:
-        sec_conn = true;
         esp_bd_addr_t bd_addr;
         memcpy(bd_addr, param->ble_security.auth_cmpl.bd_addr, sizeof(esp_bd_addr_t));
         ESP_LOGI(HID_TAG, "remote BD_ADDR: %08x%04x",\
